@@ -66,7 +66,7 @@ var getStim = function() {
   curr_data.choice2_stim = inners[number_i]
   curr_data.choice1_correct_response = choices1[border_i]
   curr_data.choice2_correct_response = choices2[number_i]
-  return [stim, stim2]
+  return jsPsych.randomization.shuffle([stim, stim2])
 }
 
 var getISI = function() {
