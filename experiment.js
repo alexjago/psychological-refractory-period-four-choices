@@ -57,8 +57,10 @@ var randomDraw = function(lst) {
 var getStim = function() {
   var border_i = randomDraw([0, 1, 2, 3]) // get border index
   var number_i = randomDraw([0, 1, 2, 3]) // get inner index
-  var stim = stim_prefix + path_source + borders[border_i][0] + ' </img></div></div>'
-  var stim2 = stim_prefix + path_source + borders[border_i][0] +
+  var stim_box = stim_prefix + path_source + borders[border_i][0] + ' </img></div></div>'
+  var stim_num = '<div class = prp_centerbox><div class = "center-text">' +
+    inners[number_i] + '</div></div>'
+  var stim_both = stim_prefix + path_source + borders[border_i][0] +
     ' </img></div></div><div class = prp_centerbox><div class = "center-text">' +
     inners[number_i] + '</div></div>'
   //update data
@@ -66,7 +68,7 @@ var getStim = function() {
   curr_data.choice2_stim = inners[number_i]
   curr_data.choice1_correct_response = choices1[border_i]
   curr_data.choice2_correct_response = choices2[number_i]
-  return jsPsych.randomization.shuffle([stim, stim2])
+  return [jsPsych.randomization.shuffle([stim_num, stim_box])[0], stim_both]
 }
 
 var getISI = function() {
