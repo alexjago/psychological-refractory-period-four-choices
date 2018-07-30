@@ -35,7 +35,6 @@ $( document ).ready(function() {
              on_trial_finish: function(data){
                addID('psychological-refractory-period-four-choices')
              },
-
              on_finish: function(data){
 
                  // Serialize the data
@@ -59,7 +58,7 @@ $( document ).ready(function() {
                              if (err.status == 200){
                                 document.location = "/next"
                              } else {
-                                 // If error, assue local save
+                                 // If error, perform local save
                                 jsPsych.data.localSave('psychological-refractory-period-four-choices_results.csv', 'csv');
                             }
                          }

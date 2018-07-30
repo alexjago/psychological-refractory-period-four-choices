@@ -68,7 +68,19 @@ var getStim = function() {
   curr_data.choice2_stim = inners[number_i]
   curr_data.choice1_correct_response = choices1[border_i]
   curr_data.choice2_correct_response = choices2[number_i]
-  return [jsPsych.randomization.shuffle([stim_num, stim_box])[0], stim_both]
+  
+  switch(modality_choice){
+  	case "number":
+  		return [stim_num, stim_num];
+  		break;
+  	case "colour":
+  		return [stim_box, stim_box];
+  		break;  		
+	case "both":
+	default:
+	  return [jsPsych.randomization.shuffle([stim_num, stim_box])[0], stim_both];
+	  break;
+  }
 }
 
 var getISI = function() {
@@ -133,11 +145,24 @@ var getFB = function() {
     choice1FB = 'Respond to the square and number!'
   }
   if (tooShort) {
-    return '<div class = prp_centerbox><p class = "center-block-text">You pressed either "H", "J", "K", or "L" before the number was on the screen! Wait for the number to respond!</p><p class = "center-block-text">Press any key to continue</p></div>'
+    return '<div class = prp_centerbox><p class = "center-block-text">You pressed a key before any stimulus was on the screen! Wait for it before responding!</p><p class = "center-block-text">Press any key to continue</p></div>'
   } else {
-    return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
-      '</p><p class = "center-block-text">' + choice2FB +
-      '</p><p class = "center-block-text">Press any key to continue</p></div>'
+  	switch(modality_choice){
+  		case "number":
+  			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
+  				'</p><p class = "center-block-text">Press any key to continue</p></div>';
+  			break;
+  		case "colour":
+  			return '<div class = prp_centerbox><p class = "center-block-text">' + choice2FB +
+  				'</p><p class = "center-block-text">Press any key to continue</p></div>';
+  				break;
+  		case "both":
+  		default:
+			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
+			  '</p><p class = "center-block-text">' + choice2FB +
+				'</p><p class = "center-block-text">Press any key to continue</p></div>';
+			break;
+    }
   }
 }
 
@@ -154,14 +179,15 @@ var instructTimeThresh = 0 ///in seconds
 var credit_var = true
 
 // task specific variables
-var practice_len = 32
-var exp_len = 200
+var modality_choice = "both"; // ["both", "colour", "number"]
+var practice_len = 4
+var exp_len = 16
 var current_trial = 0
 var choices1 = [90,88,67,86] // z,x,c,v
 var choices2 = [72,74,75,76] // h,j,k,l
 var choices = choices1.concat(choices2)
 var practice_ISIs = jsPsych.randomization.repeat([50, 150, 300, 800],
-  exp_len / 4)
+  exp_len / 4) // ISI: inter stimulus interval
 var ISIs = practice_ISIs.concat(jsPsych.randomization.repeat([50, 150, 300, 800], exp_len / 4))
 var curr_data = {
     ISI: '',
@@ -179,7 +205,7 @@ var borders = [['1_border.png', 'red'], ['2_border.png', 'blue'],
   // inner number reflect the choice RT. 
 var inners = [3,4,5,6]
 
-//instruction stim
+//These are just for the initial instruction.
 var box1 = '<div class = prp_far-left-instruction><div class = prp_stimBox><img class = prpStim src = ' +
   path_source + borders[0][0] + ' </img></div></div>'
 var box2 =
@@ -280,10 +306,10 @@ var instructions_block = {
     trial_id: 'instruction'
   },
   pages: [
-    '<div class = prp_centerbox><p class ="block-text">In this experiment, you will have to do two tasks in quick succession. You will respond by pressing the "Z", "X", "C", "V" and "H", "J", "K", "L" keys.</p><p class ="block-text">First, a colored square will appear on the screen. If the square is the ' + borders[0][1] + ' square (on the far-left below), you should press the "Z" key. If it is the ' + borders[1][1] + ' square (on the centre-left), you should press the "X" key. If it is the ' + borders[2][1] + ' square (on the centre-right), you should press the "C" key. And if it is the ' + borders[3][1] + ' square (on the far-right), you should press the "V" key. </p>' +
+    '<div class = prp_centerbox><p class ="block-text">In this experiment, you will have to do two tasks in quick succession. You will respond by pressing the "Z", "X", "C", "V" and "H", "J", "K", "L" keys.</p><p class ="block-text">First, a either a coloured square or a number will appear on the screen. If the square is the ' + borders[0][1] + ' square (on the far-left below), you should press the "Z" key. If it is the ' + borders[1][1] + ' square (on the centre-left), you should press the "X" key. If it is the ' + borders[2][1] + ' square (on the centre-right), you should press the "C" key. And if it is the ' + borders[3][1] + ' square (on the far-right), you should press the "V" key. </p>' +
     box1 + box2 + box3 + box4 + '</div>',
-    '<div class = prp_centerbox><p class ="block-text">After a short delay one of four numbers will appear in the square (as you can see below). if the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p><p class ="block-text">It is very important that you respond as quickly as possible! You should respond to the colored square first and then the number. Respond as quickly as you can to the colored square and then respond to the number.</p>' +
-    box_number1 + box_number2 + box_number3 + box_number4 +'</div>', '<div class = prp_centerbox><p class ="block-text">We will start with some practice after you end the instructions. Make sure you remember which colored squares to respond to and which keys to press for the two numbers before you continue. Go through the instructions again if you need to.</p></div>'
+    '<div class = prp_centerbox><p class ="block-text">After a short delay, either one of four numbers will appear in the square (as you can see below), or else a coloured square will appear to surround the number. If the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p><p class ="block-text">It is very important that you respond as quickly as possible! You should respond to the colored square first and then the number. Respond as quickly as you can to the colored square and then respond to the number.</p>' +
+    box_number1 + box_number2 + box_number3 + box_number4 +'</div>', '<div class = prp_centerbox><p class ="block-text">We will start with some practice after you end the instructions. Make sure you remember which coloured squares and which numbers correspond to which keys. Go through the instructions again if you need to.</p></div>'
   ],
   allow_keys: false,
   show_clickable_nav: true,
@@ -324,6 +350,34 @@ var start_practice_block = {
   timing_post_trial: 1000
 };
 
+var start_box_block = {
+  type: 'poldrack-text',
+  data: {
+    trial_id: 'intro_box',
+    exp_stage: 'test'
+  },
+  text: '<div class = prp_centerbox><p class ="center-block-text">We will now start a coloured-box-only test run. Press <strong>enter</strong> to begin.</p></div>',
+  cont_key: [13],
+  timing_post_trial: 1000,
+//   on_finish: function() {
+//     current_trial = 0
+//   }
+};
+
+var start_number_block = {
+  type: 'poldrack-text',
+  data: {
+    trial_id: 'intro_box',
+    exp_stage: 'test'
+  },
+  text: '<div class = prp_centerbox><p class ="center-block-text">We will now start a number-only test run. Press <strong>enter</strong> to begin.</p></div>',
+  cont_key: [13],
+  timing_post_trial: 1000,
+  on_finish: function() {
+    current_trial = 0
+  }
+};
+
 var start_test_block = {
   type: 'poldrack-text',
   data: {
@@ -355,6 +409,57 @@ var fixation_block = {
   }
 }
 
+/* define box-only block */
+
+var box_only_block = {
+  type: 'poldrack-multi-stim-multi-response',
+  stimuli: getStim,
+  is_html: true,
+  data: {
+    trial_id: 'stim',
+    exp_stage: 'box_only'
+  },
+  choices: [choices, choices],
+  timing_stim: getISI,
+  timing_response: 2000,
+  response_ends_trial: true,
+  on_start: function() {
+  	modality_choice = "colour"
+  },
+  on_finish: function() {
+    curr_data.trial_num = current_trial
+    jsPsych.data.addDataToLastTrial(curr_data)
+    current_trial += 1
+  },
+  timing_post_trial: 500
+}
+
+/* define number-only block */
+
+var number_only_block = {
+  type: 'poldrack-multi-stim-multi-response',
+  stimuli: getStim,
+  is_html: true,
+  data: {
+    trial_id: 'stim',
+    exp_stage: 'number_only'
+  },
+  choices: [choices, choices],
+  timing_stim: getISI,
+  timing_response: 2000,
+  response_ends_trial: true,
+  on_start: function() {
+  	modality_choice = "number"
+  },
+  on_finish: function() {
+    curr_data.trial_num = current_trial
+    jsPsych.data.addDataToLastTrial(curr_data)
+    current_trial += 1
+  },
+  timing_post_trial: 500
+}
+
+
 /* define practice block */
 var practice_block = {
   type: 'poldrack-multi-stim-multi-response',
@@ -368,6 +473,9 @@ var practice_block = {
   timing_stim: getISI,
   timing_response: 2000,
   response_ends_trial: true,
+  on_start: function() {
+  	modality_choice = "both"
+  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
@@ -404,6 +512,9 @@ var test_block = {
   timing_stim: getISI,
   respond_ends_trial: true,
   timing_response: 2000,
+  on_start: function() {
+  	modality_choice = "both";
+  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
@@ -415,19 +526,40 @@ var test_block = {
 
 /* create experiment definition array */
 var psychological_refractory_period_four_choices_experiment = [];
+
+// intro & practice
 psychological_refractory_period_four_choices_experiment.push(instruction_node);
 psychological_refractory_period_four_choices_experiment.push(start_practice_block);
+
+// practice section
 for (var i = 0; i < practice_len; i++) {
   psychological_refractory_period_four_choices_experiment.push(fixation_block);
   psychological_refractory_period_four_choices_experiment.push(practice_block);
   psychological_refractory_period_four_choices_experiment.push(feedback_block);
 }
+
+// box only
+psychological_refractory_period_four_choices_experiment.push(start_box_block);
+for (var i = 0; i < practice_len; i++) {
+  psychological_refractory_period_four_choices_experiment.push(fixation_block);
+  psychological_refractory_period_four_choices_experiment.push(box_only_block)
+}
+
+// number only
+psychological_refractory_period_four_choices_experiment.push(start_number_block);
+for (var i = 0; i < practice_len; i++) {
+  psychological_refractory_period_four_choices_experiment.push(fixation_block);
+  psychological_refractory_period_four_choices_experiment.push(number_only_block)
+}
+
+// Full Monty
 psychological_refractory_period_four_choices_experiment.push(attention_node);
 psychological_refractory_period_four_choices_experiment.push(start_test_block);
 for (var i = 0; i < exp_len; i++) {
   psychological_refractory_period_four_choices_experiment.push(fixation_block);
   psychological_refractory_period_four_choices_experiment.push(test_block)
 }
+
 psychological_refractory_period_four_choices_experiment.push(attention_node);
 psychological_refractory_period_four_choices_experiment.push(post_task_block)
 psychological_refractory_period_four_choices_experiment.push(end_block);
