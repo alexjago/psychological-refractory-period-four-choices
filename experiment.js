@@ -1,4 +1,4 @@
-// Modified by Alex Jago to have four colour choices ([red, blue, green, yellow] : [Z, X, C, V]) 
+// Modified by Alex Jago to have four colour choices ([red, blue, green, yellow] : [Z, X, C, V])
 //	and four number choices ([3, 4, 5, 6] : [H, J, K, L])
 
 /* ************************************ */
@@ -38,7 +38,7 @@ function assessPerformance() {
   var avg_rt = -1
   if (rt_array.length !== 0) {
     avg_rt = math.median(rt_array)
-  } 
+  }
   var missed_percent = missed_count/trial_count
   credit_var = (missed_percent < 0.4 && avg_rt > 200)
   jsPsych.data.addDataToLastTrial({"credit_var": credit_var})
@@ -63,22 +63,28 @@ var getStim = function() {
   var stim_both = stim_prefix + path_source + borders[border_i][0] +
     ' </img></div></div><div class = prp_centerbox><div class = "center-text">' +
     inners[number_i] + '</div></div>'
+
   //update data
-  curr_data.choice1_stim = borders[border_i][1]
-  curr_data.choice2_stim = inners[number_i]
-  curr_data.choice1_correct_response = choices1[border_i]
-  curr_data.choice2_correct_response = choices2[number_i]
-  
-  switch(modality_choice){
+
+  curr_data.choice1_stim = stim_order ? borders[border_i][1] : inners[number_i];
+  curr_data.choice2_stim = stim_order ? inners[number_i] : borders[border_i][1];
+  curr_data.choice1_correct_response = stim_order ? choices1[border_i] : choices2[number_i];
+  curr_data.choice2_correct_response = stim_order ? choices2[number_i] : choices1[border_i];
+
+  switch(stim_modes){
   	case "number":
   		return [stim_num, stim_num];
   		break;
   	case "colour":
   		return [stim_box, stim_box];
-  		break;  		
+  		break;
 	case "both":
 	default:
-	  return [jsPsych.randomization.shuffle([stim_num, stim_box])[0], stim_both];
+    if(stim_order){
+      return [stim_box, stim_both];
+    } else {
+      return [stim_num, stim_both];
+    }
 	  break;
   }
 }
@@ -88,7 +94,7 @@ var getISI = function() {
     curr_data.ISI = ISI
     return [ISI, 2000 - ISI]
   }
-  
+
 /*
 In this task the participant can make two responses - one to a go/nogo stim and one to a 2AFC task. If only one response is made
 and it is one of the 2AFC responses, the person is assumed to have "no-goed" to the go/nogo stim.
@@ -100,31 +106,31 @@ var getFB = function() {
   var tooShort = false
   var choice1FB = ''
   var choice2FB = ''
-  
-  var squareReminder = 'Remember: if the square is ' + borders[0][1] + ' press the "Z" key. If the square is ' + borders[1][1] + ' press the "X" key.\n' + 
+
+  var squareReminder = 'Remember: if the square is ' + borders[0][1] + ' press the "Z" key. If the square is ' + borders[1][1] + ' press the "X" key.\n' +
   							'If the square is ' + borders[2][1] + ' press the "C" key. If the square is ' + borders[3][1] + ' press the "V" key.'
-  
-  var numberReminder = 'Remember: if the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 
+
+  var numberReminder = 'Remember: if the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' +
   							'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.\n'
-  
+
     // If the person only responded once
   if (rts[0] !== -1 && rts[1] === -1) {
-    if (jQuery.inArray(keys[0], choices1) === -1) {
-      choice1FB = 'You did not respond to the colored square!'
+    if (jQuery.inArray(keys[0], (stim_order ? choices1 : choices2)) === -1) {
+      choice1FB = 'You did not respond to the ' + (stim_order ? 'colored square!' : 'number!')
       if (rts[0] < data.ISI + 50) {
         tooShort = true //if they respond to the number before they should be able to
       }
       if (keys[0] === data.choice2_correct_response) {
-        choice2FB = 'You responded correctly to the number!'
+        choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square!')
       } else {
-        choice2FB = 'You did not respond correctly to the number. ' + numberReminder
+        choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'colored square. ' + squareReminder)
       }
-    } else if (jQuery.inArray(keys[0], choices2) === -1) {
-      choice2FB = 'You did not respond to the number!'
+    } else if (jQuery.inArray(keys[0], (stim_order ? choices2 : choices1)) === -1) {
+      choice2FB = 'You did not respond to the ' + (stim_order ? 'number!' : 'coloured square!')
       if (keys[0] === data.choice1_correct_response) {
-        choice1FB = 'You responded correctly to the colored square!'
+        choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
       } else {
-        choice1FB = 'You did not respond correctly to the colored square. ' + squareReminder
+        choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder)
       }
     }
   } else if (rts[0] !== -1 && rts[1] !== -1) { //if the person responded twice
@@ -132,14 +138,14 @@ var getFB = function() {
       tooShort = true //if they respond to the number before they should be able to
     }
     if (keys[0] === data.choice1_correct_response) {
-      choice1FB = 'You responded correctly to the colored square!'
+      choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
     } else {
-      choice1FB = 'You did not respond correctly to the colored square. ' + squareReminder
+      choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder)
     }
     if (keys[1] === data.choice2_correct_response) {
-      choice2FB = 'You responded correctly to the number!'
+      choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square! ')
     } else {
-      choice2FB = 'You did not respond correctly to the number. ' + numberReminder
+      choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'coloured square. ' + squareReminder)
     }
   } else { //if they didn't respond
     choice1FB = 'Respond to the square and number!'
@@ -147,7 +153,7 @@ var getFB = function() {
   if (tooShort) {
     return '<div class = prp_centerbox><p class = "center-block-text">You pressed a key before any stimulus was on the screen! Wait for it before responding!</p><p class = "center-block-text">Press any key to continue</p></div>'
   } else {
-  	switch(modality_choice){
+  	switch(stim_modes){
   		case "number":
   			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
   				'</p><p class = "center-block-text">Press any key to continue</p></div>';
@@ -179,8 +185,9 @@ var instructTimeThresh = 0 ///in seconds
 var credit_var = true
 
 // task specific variables
-var modality_choice = "both"; // ["both", "colour", "number"]
-var practice_len = 4
+var stim_modes = "both"; // ["both", "colour", "number"]
+var stim_order = true; // True: box then number. False: number then box.
+var practice_len = 16
 var exp_len = 16
 var current_trial = 0
 var choices1 = [90,88,67,86] // z,x,c,v
@@ -194,15 +201,15 @@ var curr_data = {
     choice1_stim: '',
     choice2_stim: '',
     choice1_correct_response: '',
-    choice2_correct_response: ''
+    choice2_correct_response: '',
   }
   //stim variables
 var path_source = 'images/'
 var stim_prefix = '<div class = prp_centerbox><div class = prp_stimBox><img class = prpStim src ='
   // border color relates to the go-nogo task. The subject should GO to the first two borders in the following array:
-var borders = [['1_border.png', 'red'], ['2_border.png', 'blue'], 
+var borders = [['1_border.png', 'red'], ['2_border.png', 'blue'],
 	['3_border.png', 'green'], ['4_border.png', 'yellow'] ]
-  // inner number reflect the choice RT. 
+  // inner number reflect the choice RT.
 var inners = [3,4,5,6]
 
 //These are just for the initial instruction.
@@ -217,7 +224,7 @@ var box3 =
 var box4 =
   '<div class = prp_far-right-instruction><div class = prp_stimBox><img class = prpStim src = ' +
   path_source + borders[3][0] + ' </img></div></div>'
-  
+
 var box_number1 =
   '<div class = prp_far-left-instruction><div class = prp_stimBox><img class = prpStim src = ' +
   path_source + borders[0][0] + ' </img></div></div>' +
@@ -405,7 +412,7 @@ var fixation_block = {
   timing_post_trial: 1000,
   on_finish: function(){
     var last_trial= jsPsych.data.getDataByTrialIndex(jsPsych.progress().current_trial_global-1)
-    jsPsych.data.addDataToLastTrial({exp_stage: last_trial.exp_stage})  
+    jsPsych.data.addDataToLastTrial({exp_stage: last_trial.exp_stage})
   }
 }
 
@@ -424,7 +431,8 @@ var box_only_block = {
   timing_response: 2000,
   response_ends_trial: true,
   on_start: function() {
-  	modality_choice = "colour"
+  	stim_modes = "colour";
+    stim_order = true;
   },
   on_finish: function() {
     curr_data.trial_num = current_trial
@@ -449,7 +457,8 @@ var number_only_block = {
   timing_response: 2000,
   response_ends_trial: true,
   on_start: function() {
-  	modality_choice = "number"
+  	stim_modes = "number";
+    stim_order = false;
   },
   on_finish: function() {
     curr_data.trial_num = current_trial
@@ -474,7 +483,8 @@ var practice_block = {
   timing_response: 2000,
   response_ends_trial: true,
   on_start: function() {
-  	modality_choice = "both"
+  	stim_modes = "both";
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
   },
   on_finish: function() {
     curr_data.trial_num = current_trial
@@ -513,7 +523,8 @@ var test_block = {
   respond_ends_trial: true,
   timing_response: 2000,
   on_start: function() {
-  	modality_choice = "both";
+  	stim_modes = "both";
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
   },
   on_finish: function() {
     curr_data.trial_num = current_trial
