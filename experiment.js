@@ -107,11 +107,13 @@ var getFB = function() {
   var choice1FB = ''
   var choice2FB = ''
 
-  var squareReminder = 'Remember: if the square is ' + borders[0][1] + ' press the "Z" key. If the square is ' + borders[1][1] + ' press the "X" key.\n' +
-  							'If the square is ' + borders[2][1] + ' press the "C" key. If the square is ' + borders[3][1] + ' press the "V" key.'
+  var squareReminder = 'Remember: if the square is ' + borders[0][1] + ' press the "Z" key.<br> If the square is ' + borders[1][1] + ' press the "X" key.<br>' +
+  							'If the square is ' + borders[2][1] + ' press the "C" key.<br> If the square is ' + borders[3][1] + ' press the "V" key.<br>'
 
-  var numberReminder = 'Remember: if the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' +
-  							'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.\n'
+  var numberReminder = 'Remember: if the number is ' + inners[0] + ' press the "H" key.<br> If the number is ' + inners[1] + ' press the "J" key.<br>' +
+  							'If the number is ' + inners[2] + ' press the "K" key.<br> If the number is ' + inners[3] + ' press the "L" key.<br>'
+
+  var orderReminder = 'Be sure to respond to the stimuli in the order they appear.'
 
     // If the person only responded once
   if (rts[0] !== -1 && rts[1] === -1) {
@@ -123,14 +125,14 @@ var getFB = function() {
       if (keys[0] === data.choice2_correct_response) {
         choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square!')
       } else {
-        choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'colored square. ' + squareReminder)
+        choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'colored square. ' + squareReminder) + orderReminder
       }
     } else if (jQuery.inArray(keys[0], (stim_order ? choices2 : choices1)) === -1) {
       choice2FB = 'You did not respond to the ' + (stim_order ? 'number!' : 'coloured square!')
       if (keys[0] === data.choice1_correct_response) {
         choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
       } else {
-        choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder)
+        choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder) + orderReminder
       }
     }
   } else if (rts[0] !== -1 && rts[1] !== -1) { //if the person responded twice
@@ -140,12 +142,12 @@ var getFB = function() {
     if (keys[0] === data.choice1_correct_response) {
       choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
     } else {
-      choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder)
+      choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder) + orderReminder
     }
     if (keys[1] === data.choice2_correct_response) {
       choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square! ')
     } else {
-      choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'coloured square. ' + squareReminder)
+      choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'coloured square. ' + squareReminder) + orderReminder
     }
   } else { //if they didn't respond
     choice1FB = 'Respond to the square and number!'
@@ -315,7 +317,8 @@ var instructions_block = {
   pages: [
     '<div class = prp_centerbox><p class ="block-text">In this experiment, you will have to do two tasks in quick succession. You will respond by pressing the "Z", "X", "C", "V" and "H", "J", "K", "L" keys.</p><p class ="block-text">First, a either a coloured square or a number will appear on the screen. If the square is the ' + borders[0][1] + ' square (on the far-left below), you should press the "Z" key. If it is the ' + borders[1][1] + ' square (on the centre-left), you should press the "X" key. If it is the ' + borders[2][1] + ' square (on the centre-right), you should press the "C" key. And if it is the ' + borders[3][1] + ' square (on the far-right), you should press the "V" key. </p>' +
     box1 + box2 + box3 + box4 + '</div>',
-    '<div class = prp_centerbox><p class ="block-text">After a short delay, either one of four numbers will appear in the square (as you can see below), or else a coloured square will appear to surround the number. If the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p><p class ="block-text">It is very important that you respond as quickly as possible! You should respond to the colored square first and then the number. Respond as quickly as you can to the colored square and then respond to the number.</p>' +
+    '<div class = prp_centerbox><p class ="block-text">After a short delay, either one of four numbers will appear in the square (as you can see below), or else a coloured square will appear to surround the number. If the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p>' +
+    '<p class ="block-text"><em>It is very important that you respond as quickly as possible! You must respond to the stimuli in the order they appear.</em></p>' +
     box_number1 + box_number2 + box_number3 + box_number4 +'</div>', '<div class = prp_centerbox><p class ="block-text">We will start with some practice after you end the instructions. Make sure you remember which coloured squares and which numbers correspond to which keys. Go through the instructions again if you need to.</p></div>'
   ],
   allow_keys: false,
