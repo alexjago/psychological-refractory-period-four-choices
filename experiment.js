@@ -1,5 +1,6 @@
 // Modified by Alex Jago to have four colour choices ([red, blue, green, yellow] : [Z, X, C, V])
 //	and four number choices ([3, 4, 5, 6] : [H, J, K, L])
+//  and optionally an odd:even choice ([3, 4, 5, 6] : [K, L, K, L])
 
 /* ************************************ */
 /* Define helper functions */
@@ -54,6 +55,8 @@ var randomDraw = function(lst) {
   return lst[index]
 }
 
+// getStim is a very important function!
+// Returns [stim_1, stim_2] and sets a bunch of things in `curr_data`
 var getStim = function() {
   var border_i = randomDraw([0, 1, 2, 3]) // get border index
   var number_i = randomDraw([0, 1, 2, 3]) // get inner index
@@ -66,25 +69,35 @@ var getStim = function() {
 
   //update data
 
-  curr_data.choice1_stim = stim_order ? borders[border_i][1] : inners[number_i];
-  curr_data.choice2_stim = stim_order ? inners[number_i] : borders[border_i][1];
-  curr_data.choice1_correct_response = stim_order ? choices1[border_i] : choices2[number_i];
-  curr_data.choice2_correct_response = stim_order ? choices2[number_i] : choices1[border_i];
+  var choice_box = borders[border_i][1];
+  var choice_num = inners[number_i];
+  var resp_box = choices1[border_i];
+  var resp_num = odd_even ? choices2[(number_i % 2) + 2] : choices2[number_i];
+  // odd is K [index 2], even is L [index 3]
 
-  switch(stim_modes){
+
+  switch(stim_modes){ // the `break`s in here shouldn't be necessary
   	case "number":
+      curr_data.choice1_stim = choice_num;
+      curr_data.choice2_stim = choice_num;
+      curr_data.choice1_correct_response = resp_num;
+      curr_data.choice2_correct_response = resp_num;
   		return [stim_num, stim_num];
   		break;
   	case "colour":
+      curr_data.choice1_stim = choice_box;
+      curr_data.choice2_stim = choice_box;
+      curr_data.choice1_correct_response = resp_box;
+      curr_data.choice2_correct_response = resp_box;
   		return [stim_box, stim_box];
   		break;
-	case "both":
+	case "both": // both is default; fall through
 	default:
-    if(stim_order){
-      return [stim_box, stim_both];
-    } else {
-      return [stim_num, stim_both];
-    }
+    curr_data.choice1_stim = stim_order ? choice_box : choice_num;
+    curr_data.choice2_stim = stim_order ? choice_num : choice_box;
+    curr_data.choice1_correct_response = stim_order ? resp_box : resp_num;
+    curr_data.choice2_correct_response = stim_order ? resp_num : resp_box;
+    return (stim_order ? [stim_box, stim_both] : [stim_num, stim_both]);
 	  break;
   }
 }
@@ -107,11 +120,15 @@ var getFB = function() {
   var choice1FB = ''
   var choice2FB = ''
 
+  console.log("Debug: ", curr_data.choice1_stim, curr_data.choice2_stim);
+
   var squareReminder = 'Remember: if the square is ' + borders[0][1] + ' press the "Z" key.<br> If the square is ' + borders[1][1] + ' press the "X" key.<br>' +
   							'If the square is ' + borders[2][1] + ' press the "C" key.<br> If the square is ' + borders[3][1] + ' press the "V" key.<br>'
 
   var numberReminder = 'Remember: if the number is ' + inners[0] + ' press the "H" key.<br> If the number is ' + inners[1] + ' press the "J" key.<br>' +
   							'If the number is ' + inners[2] + ' press the "K" key.<br> If the number is ' + inners[3] + ' press the "L" key.<br>'
+
+  var oddEvenReminder = 'Remember: if the number is odd press the "K" key. If the number is even press the "L" key.'
 
   var orderReminder = 'Be sure to respond to the stimuli in the order they appear.'
 
@@ -125,14 +142,14 @@ var getFB = function() {
       if (keys[0] === data.choice2_correct_response) {
         choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square!')
       } else {
-        choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'colored square. ' + squareReminder) + orderReminder
+        choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + (odd_even ? oddEvenReminder : numberReminder) : 'colored square. ' + squareReminder) + orderReminder
       }
     } else if (jQuery.inArray(keys[0], (stim_order ? choices2 : choices1)) === -1) {
       choice2FB = 'You did not respond to the ' + (stim_order ? 'number!' : 'coloured square!')
       if (keys[0] === data.choice1_correct_response) {
         choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
       } else {
-        choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder) + orderReminder
+        choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + (odd_even ? oddEvenReminder : numberReminder)) + orderReminder
       }
     }
   } else if (rts[0] !== -1 && rts[1] !== -1) { //if the person responded twice
@@ -142,12 +159,12 @@ var getFB = function() {
     if (keys[0] === data.choice1_correct_response) {
       choice1FB = 'You responded correctly to the ' + (stim_order ? 'colored square!' : 'number!')
     } else {
-      choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + numberReminder) + orderReminder
+      choice1FB = 'You did not respond correctly to the ' + (stim_order ? 'colored square. ' + squareReminder : 'number. ' + (odd_even ? oddEvenReminder : numberReminder)) + orderReminder
     }
     if (keys[1] === data.choice2_correct_response) {
       choice2FB = 'You responded correctly to the ' + (stim_order ? 'number!' : 'coloured square! ')
     } else {
-      choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + numberReminder : 'coloured square. ' + squareReminder) + orderReminder
+      choice2FB = 'You did not respond correctly to the ' + (stim_order ? 'number. ' + (odd_even ? oddEvenReminder : numberReminder) : 'coloured square. ' + squareReminder) + orderReminder
     }
   } else { //if they didn't respond
     choice1FB = 'Respond to the square and number!'
@@ -168,7 +185,11 @@ var getFB = function() {
   		default:
 			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
 			  '</p><p class = "center-block-text">' + choice2FB +
-				'</p><p class = "center-block-text">Press any key to continue</p></div>';
+        //
+        '</p><p class = "center-block-text">' + 'DEBUG: stim_modes = ' + stim_modes +
+        '; stim_order = ' + (stim_order ? 'true':'false') + '; odd_even = ' + (odd_even ? 'true' : 'false') + '.' +
+        //
+        '</p><p class = "center-block-text">Press any key to continue</p></div>';
 			break;
     }
   }
@@ -189,6 +210,11 @@ var credit_var = true
 // task specific variables
 var stim_modes = "both"; // ["both", "colour", "number"]
 var stim_order = true; // True: box then number. False: number then box.
+var odd_even = false; // If true, then numbers are to be responded to as odd or even. If false, as numbers.
+
+var stim_mutex = true;
+var stim_order_check = "not changed";
+
 var practice_len = 16
 var exp_len = 16
 var current_trial = 0
@@ -196,8 +222,11 @@ var choices1 = [90,88,67,86] // z,x,c,v
 var choices2 = [72,74,75,76] // h,j,k,l
 var choices = choices1.concat(choices2)
 var practice_ISIs = jsPsych.randomization.repeat([50, 150, 300, 800],
-  exp_len / 4) // ISI: inter stimulus interval
-var ISIs = practice_ISIs.concat(jsPsych.randomization.repeat([50, 150, 300, 800], exp_len / 4))
+  exp_len/4) // ISI: inter stimulus interval
+  // original : [50, 150, 300, 800]
+  // As requested: [50, 200, 400, 800]
+var ISIs = practice_ISIs.concat(jsPsych.randomization.repeat([50, 150, 300, 800], exp_len * 3 / 4))
+
 var curr_data = {
     ISI: '',
     choice1_stim: '',
@@ -308,24 +337,29 @@ var feedback_instruct_block = {
   timing_post_trial: 0,
   timing_response: 180000
 };
-/// This ensures that the subject does not read through the instructions too quickly.  If they do it too quickly, then we will go over the loop again.
+
+
+odd_even = true; // `pages` in the below is evaluated now...
 var instructions_block = {
   type: 'poldrack-instructions',
   data: {
     trial_id: 'instruction'
   },
   pages: [
-    '<div class = prp_centerbox><p class ="block-text">In this experiment, you will have to do two tasks in quick succession. You will respond by pressing the "Z", "X", "C", "V" and "H", "J", "K", "L" keys.</p><p class ="block-text">First, a either a coloured square or a number will appear on the screen. If the square is the ' + borders[0][1] + ' square (on the far-left below), you should press the "Z" key. If it is the ' + borders[1][1] + ' square (on the centre-left), you should press the "X" key. If it is the ' + borders[2][1] + ' square (on the centre-right), you should press the "C" key. And if it is the ' + borders[3][1] + ' square (on the far-right), you should press the "V" key. </p>' +
+    '<div class = prp_centerbox><p class ="block-text">In this experiment, you will have to do two tasks in quick succession. You will respond by pressing the "Z", "X", "C", "V" and '+ (odd_even ? '' :'"H", "J", ') +'"K", "L" keys.</p>' +
+    '<p class ="block-text">First, a either a coloured square or a number will appear on the screen. If the square is the ' + borders[0][1] + ' square (on the far-left below), you should press the "Z" key. If it is the ' + borders[1][1] + ' square (on the centre-left), you should press the "X" key. If it is the ' + borders[2][1] + ' square (on the centre-right), you should press the "C" key. And if it is the ' + borders[3][1] + ' square (on the far-right), you should press the "V" key. </p>' +
     box1 + box2 + box3 + box4 + '</div>',
-    '<div class = prp_centerbox><p class ="block-text">After a short delay, either one of four numbers will appear in the square (as you can see below), or else a coloured square will appear to surround the number. If the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p>' +
+    '<div class = prp_centerbox><p class ="block-text">After a short delay, either one of four numbers will appear in the square (as you can see below), or else a coloured square will appear to surround the number. ' +
+    ( odd_even ? 'If the number is odd press the "K" key. If the number is even press the "L" key' : 'If the number is ' + inners[0] + ' press the "H" key. If the number is ' + inners[1] + ' press the "J" key.\n' + 'If the number is ' + inners[2] + ' press the "K" key. If the number is ' + inners[3] + ' press the "L" key.</p>' ) +
     '<p class ="block-text"><em>It is very important that you respond as quickly as possible! You must respond to the stimuli in the order they appear.</em></p>' +
     box_number1 + box_number2 + box_number3 + box_number4 +'</div>', '<div class = prp_centerbox><p class ="block-text">We will start with some practice after you end the instructions. Make sure you remember which coloured squares and which numbers correspond to which keys. Go through the instructions again if you need to.</p></div>'
   ],
   allow_keys: false,
   show_clickable_nav: true,
-  timing_post_trial: 1000
+  timing_post_trial: 1000,
 };
 
+/// This ensures that the subject does not read through the instructions too quickly.  If they do it too quickly, then we will go over the loop again.
 var instruction_node = {
   timeline: [feedback_instruct_block, instructions_block],
   /* This function defines stopping criteria */
@@ -348,6 +382,13 @@ var instruction_node = {
   }
 }
 
+/* We have a bit of an issue with our primary blocks.
+ * It would be nice to use `on_start` to pass parameters
+ * But `getStim` seems to be called before it, and calling `getStim` from inside
+ * of `on_start` just gets us no stim at all for some reason.
+ * So instead we're going to use an off-by-one trick and set things in the
+ * previous nodes' `on_finish`.
+**/
 var start_practice_block = {
   type: 'poldrack-text',
   data: {
@@ -357,7 +398,14 @@ var start_practice_block = {
   text: '<div class = prp_centerbox><p class = "center-block-text">We will start ' +
     practice_len + ' practice trials. Press <strong>enter</strong> to begin.</p></div>',
   cont_key: [13],
-  timing_post_trial: 1000
+  timing_post_trial: 1000,
+  on_finish: function() {
+    stim_modes = "both";
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
+      // set this ^^^ for the first actual practice trial
+    odd_even = true;
+    stim_order_check = "Changed"
+  }
 };
 
 var start_box_block = {
@@ -369,9 +417,11 @@ var start_box_block = {
   text: '<div class = prp_centerbox><p class ="center-block-text">We will now start a coloured-box-only test run. Press <strong>enter</strong> to begin.</p></div>',
   cont_key: [13],
   timing_post_trial: 1000,
-//   on_finish: function() {
-//     current_trial = 0
-//   }
+  on_finish: function() {
+     current_trial = 0;
+     stim_modes = "colour";
+     stim_order = true;
+   }
 };
 
 var start_number_block = {
@@ -384,7 +434,10 @@ var start_number_block = {
   cont_key: [13],
   timing_post_trial: 1000,
   on_finish: function() {
-    current_trial = 0
+    current_trial = 0;
+    stim_modes = "number";
+    stim_order = false; // number first (and second, but that doesn't matter)
+    odd_even = true;
   }
 };
 
@@ -398,7 +451,11 @@ var start_test_block = {
   cont_key: [13],
   timing_post_trial: 1000,
   on_finish: function() {
-    current_trial = 0
+    current_trial = 0;
+    stim_modes = "both";
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
+      // set this ^^^ for the first actual test trial
+    odd_even = true;
   }
 };
 
@@ -433,10 +490,6 @@ var box_only_block = {
   timing_stim: getISI,
   timing_response: 2000,
   response_ends_trial: true,
-  on_start: function() {
-  	stim_modes = "colour";
-    stim_order = true;
-  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
@@ -459,10 +512,6 @@ var number_only_block = {
   timing_stim: getISI,
   timing_response: 2000,
   response_ends_trial: true,
-  on_start: function() {
-  	stim_modes = "number";
-    stim_order = false;
-  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
@@ -479,20 +528,18 @@ var practice_block = {
   is_html: true,
   data: {
     trial_id: 'stim',
-    exp_stage: 'practice'
+    exp_stage: 'practice',
+    random_flag : jsPsych.randomization.shuffle(['a', 'b'])[0],
   },
   choices: [choices, choices],
   timing_stim: getISI,
   timing_response: 2000,
   response_ends_trial: true,
-  on_start: function() {
-  	stim_modes = "both";
-    stim_order = jsPsych.randomization.shuffle([true, false])[0];
-  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
     current_trial += 1
+    // don't set stim_order here - it messes with the FB
   },
   timing_post_trial: 500
 }
@@ -508,7 +555,14 @@ var feedback_block = {
   timing_stim: -1,
   timing_response: -1,
   response_ends_trial: true,
-  timing_post_trial: 500
+  timing_post_trial: 500,
+  on_start : function(){
+      console.log(stim_modes, stim_order, odd_even);
+  },
+  on_finish : function(){
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
+      // set this for the *next* trial
+  }
 }
 
 
@@ -523,16 +577,14 @@ var test_block = {
   },
   choices: [choices, choices],
   timing_stim: getISI,
-  respond_ends_trial: true,
+  response_ends_trial: true,
   timing_response: 2000,
-  on_start: function() {
-  	stim_modes = "both";
-    stim_order = jsPsych.randomization.shuffle([true, false])[0];
-  },
   on_finish: function() {
     curr_data.trial_num = current_trial
     jsPsych.data.addDataToLastTrial(curr_data)
     current_trial += 1
+    stim_order = jsPsych.randomization.shuffle([true, false])[0];
+      // set this for the *next* trial
   },
   timing_post_trial: 500
 }

@@ -1,6 +1,10 @@
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Vanessa Sochat, Stanford University
+Based on `psychological-refractory-period-two-choices`, copyright (c) 2016-2017
+Vanessa Sochat, Stanford University
+
+Adaptation to `psychological-refractory-period-four-choices` copyright (c) 2018
+Alex Jago for Petrie Wheeler-Lill, University of Queensland
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
