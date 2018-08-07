@@ -186,8 +186,8 @@ var getFB = function() {
 			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
 			  '</p><p class = "center-block-text">' + choice2FB +
         //
-        '</p><p class = "center-block-text">' + 'DEBUG: stim_modes = ' + stim_modes +
-        '; stim_order = ' + (stim_order ? 'true':'false') + '; odd_even = ' + (odd_even ? 'true' : 'false') + '.' +
+        //'</p><p class = "center-block-text">' + 'DEBUG: stim_modes = ' + stim_modes +
+        //'; stim_order = ' + (stim_order ? 'true':'false') + '; odd_even = ' + (odd_even ? 'true' : 'false') + '.' +
         //
         '</p><p class = "center-block-text">Press any key to continue</p></div>';
 			break;
@@ -218,6 +218,7 @@ var stim_order_check = "not changed";
 var practice_len = 16
 var exp_len = 16
 var current_trial = 0
+
 var choices1 = [90,88,67,86] // z,x,c,v
 var choices2 = [72,74,75,76] // h,j,k,l
 var choices = choices1.concat(choices2)
