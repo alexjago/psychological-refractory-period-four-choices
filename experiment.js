@@ -221,11 +221,11 @@ var current_trial = 0
 var choices1 = [90,88,67,86] // z,x,c,v
 var choices2 = [72,74,75,76] // h,j,k,l
 var choices = choices1.concat(choices2)
-var practice_ISIs = jsPsych.randomization.repeat([50, 150, 300, 800],
+var practice_ISIs = jsPsych.randomization.repeat([50, 200, 400, 800],
   exp_len/4) // ISI: inter stimulus interval
   // original : [50, 150, 300, 800]
   // As requested: [50, 200, 400, 800]
-var ISIs = practice_ISIs.concat(jsPsych.randomization.repeat([50, 150, 300, 800], exp_len * 3 / 4))
+var ISIs = practice_ISIs.concat(jsPsych.randomization.repeat([50, 200, 400, 800], exp_len * 3 / 4))
 
 var curr_data = {
     ISI: '',
