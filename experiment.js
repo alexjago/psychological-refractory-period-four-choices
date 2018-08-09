@@ -185,10 +185,11 @@ var getFB = function() {
   		default:
 			return '<div class = prp_centerbox><p class = "center-block-text">' + choice1FB +
 			  '</p><p class = "center-block-text">' + choice2FB +
-        //
-        //'</p><p class = "center-block-text">' + 'DEBUG: stim_modes = ' + stim_modes +
-        //'; stim_order = ' + (stim_order ? 'true':'false') + '; odd_even = ' + (odd_even ? 'true' : 'false') + '.' +
-        //
+        /**
+         * '</p><p class = "center-block-text">' + 'DEBUG: stim_modes = ' + stim_modes +
+         * '; stim_order = ' + (stim_order ? 'true':'false') + '; odd_even = ' + (odd_even ? 'true' : 'false') + '.' +
+         *
+        **/
         '</p><p class = "center-block-text">Press any key to continue</p></div>';
 			break;
     }
