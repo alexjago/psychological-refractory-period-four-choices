@@ -531,7 +531,6 @@ var practice_block = {
   data: {
     trial_id: 'stim',
     exp_stage: 'practice',
-    random_flag : jsPsych.randomization.shuffle(['a', 'b'])[0],
   },
   choices: [choices, choices],
   timing_stim: getISI,
